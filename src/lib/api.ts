@@ -47,8 +47,8 @@ function normalizeTask(task: any): Task {
 function normalizeDashboardStats(stats: any): DashboardStats {
   return {
     total_projects: Number(stats?.total_projects ?? stats?.totalProjects ?? 0),
-    active_agents: Number(stats?.active_agents ?? stats?.activeAgents ?? 0),
-    tasks_completed: Number(stats?.tasks_completed ?? stats?.tasksCompleted ?? 0),
+    active_agents: Number(stats?.total_agents ?? stats?.active_agents ?? stats?.activeAgents ?? 0),
+    tasks_completed: Number(stats?.tasks_done ?? stats?.tasks_completed ?? stats?.tasksCompleted ?? 0),
     tasks_in_progress: Number(stats?.tasks_in_progress ?? stats?.tasksInProgress ?? 0),
   };
 }
