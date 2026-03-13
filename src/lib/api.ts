@@ -116,8 +116,11 @@ export const api = {
     },
   },
   tasks: {
-    list: async (projectId?: string): Promise<Task[]> => {
-      const path = projectId ? `/tasks/?project_id=${projectId}` : "/tasks/";
+    list: async (projectId?: string, includeOldDone?: boolean): Promise<Task[]> => {
+      let path = projectId ? `/tasks/?project_id=${projectId}` : "/tasks/";
+      if (includeOldDone) {
+        path += projectId ? "&include_old_done=true" : "?include_old_done=true";
+      }
       const tasks = await fetchApi<any[]>(path);
       return tasks.map(normalizeTask);
     },
