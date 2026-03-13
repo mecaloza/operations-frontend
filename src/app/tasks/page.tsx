@@ -28,12 +28,17 @@ export default function MyTasksPage() {
   const [filterAgent, setFilterAgent] = useState<string>("all");
   const [filterProject, setFilterProject] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [showOldDone, setShowOldDone] = useState<boolean>(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   const fetchData = async () => {
     try {
+      const taskUrl = showOldDone 
+        ? `${API_BASE}/tasks/?include_old_done=true`
+        : `${API_BASE}/tasks/`;
+      
       const [t, a, p] = await Promise.all([
-        fetch(`${API_BASE}/tasks/`, { cache: "no-store" }).then(r => r.json()),
+        fetch(taskUrl, { cache: "no-store" }).then(r => r.json()),
         fetch(`${API_BASE}/agents/`, { cache: "no-store" }).then(r => r.json()),
         fetch(`${API_BASE}/projects/`, { cache: "no-store" }).then(r => r.json()),
       ]);
@@ -50,7 +55,8 @@ export default function MyTasksPage() {
     fetchData();
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showOldDone]);
 
   const projectMap = Object.fromEntries(projects.map((p: any) => [p.id, p]));
   const uniqueAgents = Array.from(new Set(tasks.map((t: any) => t.assigned_to).filter(Boolean)));
@@ -109,6 +115,19 @@ export default function MyTasksPage() {
           <option value="done">Done</option>
           <option value="blocked">Blocked</option>
         </select>
+
+        <button
+          onClick={() => setShowOldDone(!showOldDone)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-colors text-sm min-h-[44px] ${
+            showOldDone 
+              ? 'border-emerald-500 bg-emerald-50 text-emerald-700' 
+              : 'border-border bg-background text-muted-foreground hover:bg-slate-50'
+          }`}
+          title={showOldDone ? "Hide old completed tasks" : "Show all completed tasks"}
+        >
+          <span>{showOldDone ? '✓' : '○'}</span>
+          <span>Old Done</span>
+        </button>
       </div>
 
       <div className="space-y-2">

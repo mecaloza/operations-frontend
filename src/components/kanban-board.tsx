@@ -31,11 +31,16 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
   const [tasks, setTasks] = useState<any[]>([]);
   const [agents, setAgents] = useState<any[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [showOldDone, setShowOldDone] = useState<boolean>(false);
 
   const fetchData = async () => {
     try {
+      const taskUrl = showOldDone 
+        ? `${API_BASE}/tasks/?project_id=${projectId}&include_old_done=true`
+        : `${API_BASE}/tasks/?project_id=${projectId}`;
+      
       const [tasksRes, agentsRes] = await Promise.all([
-        fetch(`${API_BASE}/tasks/?project_id=${projectId}`, { cache: "no-store" }),
+        fetch(taskUrl, { cache: "no-store" }),
         fetch(`${API_BASE}/agents/`, { cache: "no-store" }),
       ]);
       if (tasksRes.ok) setTasks(await tasksRes.json());
@@ -51,7 +56,7 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
     const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, showOldDone]);
 
   const agentMap = Object.fromEntries([
     ...agents.map((a: any) => [String(a.id), a]),
@@ -72,11 +77,23 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
             <p className="text-sm text-muted-foreground">{projectDescription}</p>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-xs text-muted-foreground">
-            Live · {lastUpdate.toLocaleTimeString()}
-          </span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowOldDone(!showOldDone)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-background hover:bg-slate-50 transition-colors text-xs"
+            title={showOldDone ? "Hide old completed tasks" : "Show all completed tasks"}
+          >
+            <span className={`transition-colors ${showOldDone ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+              {showOldDone ? '✓' : '○'}
+            </span>
+            <span className="text-muted-foreground">Old Done</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-muted-foreground">
+              Live · {lastUpdate.toLocaleTimeString()}
+            </span>
+          </div>
         </div>
       </div>
 
