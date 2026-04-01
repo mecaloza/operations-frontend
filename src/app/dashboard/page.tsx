@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import type { ActivityItem, DashboardStats } from "@/lib/types";
 import { FolderKanban, Users, CheckCircle2, Clock } from "lucide-react";
 import { TasksByProjectChart } from "@/components/tasks-by-project-chart";
+import { TaskDetailModal } from "@/components/task-detail-modal";
 
 const EMPTY_STATS: DashboardStats = {
   total_projects: 0,
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const [isActivityLoading, setIsActivityLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [activityError, setActivityError] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -162,7 +164,11 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-4">
               {activity.map((item) => (
-                <div key={item.id} className="flex items-start gap-3">
+                <div 
+                  key={item.id} 
+                  className={`flex items-start gap-3 ${item.task_id ? 'cursor-pointer hover:bg-slate-50 -mx-2 px-2 py-1 rounded-lg transition-colors' : ''}`}
+                  onClick={() => item.task_id && setSelectedTaskId(item.task_id)}
+                >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
                     {item.agent.charAt(0)}
                   </div>
@@ -194,6 +200,13 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      {selectedTaskId && (
+        <TaskDetailModal
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+        />
+      )}
     </div>
   );
 }

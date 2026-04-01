@@ -1,0 +1,77 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "O Operations" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: O
+        - generic [ref=e7]: Operations
+      - navigation [ref=e8]:
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e10]
+          - generic [ref=e15]: Dashboard
+        - link "Projects" [ref=e16] [cursor=pointer]:
+          - /url: /projects
+          - img [ref=e17]
+          - generic [ref=e19]: Projects
+        - link "Sprints" [ref=e20] [cursor=pointer]:
+          - /url: /sprints
+          - img [ref=e21]
+          - generic [ref=e25]: Sprints
+        - link "My Tasks" [ref=e26] [cursor=pointer]:
+          - /url: /tasks
+          - img [ref=e27]
+          - generic [ref=e30]: My Tasks
+        - link "Agents" [ref=e31] [cursor=pointer]:
+          - /url: /agents
+          - img [ref=e32]
+          - generic [ref=e37]: Agents
+        - link "Users" [ref=e38] [cursor=pointer]:
+          - /url: /users
+          - img [ref=e39]
+          - generic [ref=e43]: Users
+        - link "Transcripts" [ref=e44] [cursor=pointer]:
+          - /url: /transcripts
+          - img [ref=e45]
+          - generic [ref=e48]: Transcripts
+        - link "Messages" [ref=e49] [cursor=pointer]:
+          - /url: /messages
+          - img [ref=e50]
+          - generic [ref=e52]: Messages
+      - button [ref=e54] [cursor=pointer]:
+        - img [ref=e55]
+    - generic [ref=e57]:
+      - banner [ref=e58]:
+        - generic [ref=e59]:
+          - img [ref=e60]
+          - textbox "Search..." [ref=e63]
+        - generic [ref=e64]:
+          - button [ref=e65] [cursor=pointer]:
+            - img [ref=e66]
+          - generic [ref=e71]: OC
+      - main [ref=e72]:
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - generic [ref=e75]:
+              - heading "Sprints - Dashboard de Épicas" [level=1] [ref=e76]
+              - paragraph [ref=e77]: Seguimiento visual de épicas y sub-tareas
+            - button "Nueva Épica" [ref=e78] [cursor=pointer]:
+              - img
+              - text: Nueva Épica
+          - generic [ref=e79]:
+            - generic [ref=e80]: "Proyecto:"
+            - combobox "Proyecto:" [ref=e81]:
+              - option "Action Experience" [selected]
+              - option "Action Colleague"
+              - option "Operations"
+          - generic [ref=e85]:
+            - paragraph [ref=e86]: Avance Total del Proyecto
+            - generic [ref=e87]:
+              - generic [ref=e88]: 0%
+              - img [ref=e89]
+          - paragraph [ref=e94]: No hay épicas para este proyecto todavía
+  - alert [ref=e95]
+```

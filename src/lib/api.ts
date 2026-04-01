@@ -9,15 +9,36 @@ import type {
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const TOKEN_KEY = "operations_token";
 
-async function fetchApi<T>(path: string): Promise<T> {
+async function fetchApi<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
+
   const res = await fetch(`${API_BASE}${path}`, {
     cache: "no-store",
-    headers: { "Content-Type": "application/json" },
+    ...options,
+    headers,
   });
+
+  // Handle 401 Unauthorized
+  if (res.status === 401) {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.href = "/login";
+    }
+    throw new Error("Unauthorized");
+  }
+
   if (!res.ok) {
     throw new Error(`API error: ${res.status} ${res.statusText}`);
   }
+  
   return res.json();
 }
 
@@ -73,6 +94,7 @@ function normalizeTimelineItem(item: any, index: number): ActivityItem {
     target: item?.target ?? item?.to_agent ?? item?.subject,
     summary: summary ? String(summary) : undefined,
     timestamp: item?.timestamp ?? item?.created_at ?? item?.updated_at ?? new Date().toISOString(),
+    task_id: item?.task_id ? asStringId(item.task_id) : undefined,
   };
 }
 
@@ -124,14 +146,15 @@ export const api = {
       const tasks = await fetchApi<any[]>(path);
       return tasks.map(normalizeTask);
     },
+    get: async (id: string): Promise<Task> => {
+      const task = await fetchApi<any>(`/tasks/${id}`);
+      return normalizeTask(task);
+    },
     update: async (id: string, data: Partial<Task>) => {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      return await fetchApi<Task>(`/tasks/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
-      return res.json() as Promise<Task>;
     },
   },
   agents: {
@@ -161,6 +184,168 @@ export const api = {
         channel: c.channel || "general",
         timestamp: c.timestamp,
       }));
+    },
+  },
+  epics: {
+    list: async (filters?: { project_id?: number; status?: string; min_progress?: number; max_progress?: number }): Promise<any[]> => {
+      const params = new URLSearchParams();
+      if (filters?.project_id) params.append("project_id", String(filters.project_id));
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.min_progress !== undefined) params.append("min_progress", String(filters.min_progress));
+      if (filters?.max_progress !== undefined) params.append("max_progress", String(filters.max_progress));
+      
+      const query = params.toString() ? `?${params.toString()}` : "";
+      return await fetchApi<any[]>(`/epics${query}`);
+    },
+    get: async (id: string | number): Promise<any> => {
+      return await fetchApi<any>(`/epics/${id}`);
+    },
+    create: async (data: any): Promise<any> => {
+      return await fetchApi<any>("/epics", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    update: async (id: string | number, data: any): Promise<any> => {
+      return await fetchApi<any>(`/epics/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+    delete: async (id: string | number): Promise<void> => {
+      await fetchApi<void>(`/epics/${id}`, {
+        method: "DELETE",
+      });
+    },
+    addTasks: async (id: string | number, taskIds: (string | number)[]): Promise<any> => {
+      return await fetchApi<any>(`/epics/${id}/tasks`, {
+        method: "POST",
+        body: JSON.stringify({ task_ids: taskIds }),
+      });
+    },
+    removeTask: async (epicId: string | number, taskId: string | number): Promise<void> => {
+      await fetchApi<void>(`/epics/${epicId}/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+    },
+  },
+  transcripts: {
+    list: async (taskId?: string | number, epicId?: string | number): Promise<any[]> => {
+      const params = new URLSearchParams();
+      if (taskId) params.append("task_id", String(taskId));
+      if (epicId) params.append("epic_id", String(epicId));
+      
+      const query = params.toString() ? `?${params.toString()}` : "";
+      return await fetchApi<any[]>(`/transcripts${query}`);
+    },
+    download: async (id: string | number): Promise<Blob> => {
+      const token = typeof window !== "undefined" ? localStorage.getItem(TOKEN_KEY) : null;
+      const headers: HeadersInit = {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      };
+      
+      const res = await fetch(`${API_BASE}/transcripts/${id}/download`, {
+        headers,
+      });
+      
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(TOKEN_KEY);
+          window.location.href = "/login";
+        }
+        throw new Error("Unauthorized");
+      }
+      
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status} ${res.statusText}`);
+      }
+      
+      return res.blob();
+    },
+  },
+  users: {
+    list: async (): Promise<any[]> => {
+      return await fetchApi<any[]>("/users/");
+    },
+    get: async (id: string | number): Promise<any> => {
+      return await fetchApi<any>(`/users/${id}`);
+    },
+    create: async (data: any): Promise<any> => {
+      return await fetchApi<any>("/users/", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    update: async (id: string | number, data: any): Promise<any> => {
+      return await fetchApi<any>(`/users/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+    delete: async (id: string | number): Promise<void> => {
+      await fetchApi<void>(`/users/${id}`, {
+        method: "DELETE",
+      });
+    },
+    assignAgents: async (userId: string | number, agentIds: (string | number)[]): Promise<any> => {
+      return await fetchApi<any>(`/users/${userId}/agents`, {
+        method: "POST",
+        body: JSON.stringify({ agent_ids: agentIds }),
+      });
+    },
+  },
+  teams: {
+    list: async (): Promise<any[]> => {
+      return await fetchApi<any[]>("/teams/");
+    },
+    get: async (id: string | number): Promise<any> => {
+      return await fetchApi<any>(`/teams/${id}`);
+    },
+    create: async (data: any): Promise<any> => {
+      return await fetchApi<any>("/teams/", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    update: async (id: string | number, data: any): Promise<any> => {
+      return await fetchApi<any>(`/teams/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+    delete: async (id: string | number): Promise<void> => {
+      await fetchApi<void>(`/teams/${id}`, {
+        method: "DELETE",
+      });
+    },
+    assignAgents: async (teamId: string | number, agentIds: (string | number)[]): Promise<any> => {
+      return await fetchApi<any>(`/teams/${teamId}/agents`, {
+        method: "POST",
+        body: JSON.stringify({ agent_ids: agentIds }),
+      });
+    },
+  },
+  evaluationPoints: {
+    list: async (epicId?: string | number): Promise<any[]> => {
+      const query = epicId ? `?epic_id=${epicId}` : "";
+      return await fetchApi<any[]>(`/evaluation-points${query}`);
+    },
+    create: async (epicId: string | number, data: any): Promise<any> => {
+      return await fetchApi<any>("/evaluation-points", {
+        method: "POST",
+        body: JSON.stringify({ ...data, epic_id: epicId }),
+      });
+    },
+    update: async (id: string | number, data: any): Promise<any> => {
+      return await fetchApi<any>(`/evaluation-points/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      });
+    },
+    delete: async (id: string | number): Promise<void> => {
+      await fetchApi<void>(`/evaluation-points/${id}`, {
+        method: "DELETE",
+      });
     },
   },
 };

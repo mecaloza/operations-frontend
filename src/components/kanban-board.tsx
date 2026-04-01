@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TaskDetailModal } from "@/components/task-detail-modal";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -32,6 +33,7 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
   const [agents, setAgents] = useState<any[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [showOldDone, setShowOldDone] = useState<boolean>(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -119,7 +121,11 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
                 column.tasks.map((task: any) => {
                   const agent = task.assigned_to ? agentMap[task.assigned_to] : null;
                   return (
-                    <Card key={task.id} className="border shadow-sm hover:shadow-md transition-shadow">
+                    <Card 
+                      key={task.id} 
+                      className="border shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => setSelectedTaskId(task.id)}
+                    >
                       <CardContent className="p-4 space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-sm font-medium text-foreground leading-tight flex-1">{task.title}</p>
@@ -155,6 +161,13 @@ export function KanbanBoard({ projectId, projectName, projectDescription }: Kanb
           </div>
         ))}
       </div>
+
+      {selectedTaskId && (
+        <TaskDetailModal
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+        />
+      )}
     </div>
   );
 }

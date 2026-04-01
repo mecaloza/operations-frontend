@@ -12,13 +12,21 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Target,
+  UserCircle,
+  FileText,
+  Flag,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/epics", label: "Épicas", icon: Flag },
+  { href: "/sprints", label: "Sprints", icon: Target },
   { href: "/tasks", label: "My Tasks", icon: ListChecks },
   { href: "/agents", label: "Agents", icon: Users },
+  { href: "/users", label: "Users", icon: UserCircle },
+  { href: "/transcripts", label: "Transcripts", icon: FileText },
   { href: "/messages", label: "Messages", icon: MessageSquare },
 ];
 
