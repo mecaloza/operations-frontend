@@ -57,7 +57,7 @@ export function TranscriptViewer({ transcript, onClose }: TranscriptViewerProps)
                 Transcript — {transcript.agent_name}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {new Date(transcript.created_at).toLocaleString()} • {transcript.messages.length} messages
+                {new Date(transcript.created_at).toLocaleString()} • {transcript.messages?.length || 0} messages
               </p>
             </div>
             <button
@@ -71,7 +71,7 @@ export function TranscriptViewer({ transcript, onClose }: TranscriptViewerProps)
         <CardContent className="flex-1 overflow-hidden p-0">
           <ScrollArea className="h-full">
             <div className="p-6 space-y-4">
-              {transcript.messages.map((message, index) => (
+              {(transcript.messages || []).map((message, index) => (
                 <div
                   key={message.id || index}
                   className={`flex gap-3 ${

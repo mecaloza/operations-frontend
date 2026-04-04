@@ -166,7 +166,7 @@ export interface Transcript {
   epic_id?: string;
   agent_id: string;
   agent_name: string;
-  messages: TranscriptMessage[];
+  messages?: TranscriptMessage[]; // Can be undefined
   created_at: string;
   updated_at: string;
   summary?: string;
