@@ -59,7 +59,7 @@ export function ProjectEditor({ transcript, allProjects, onSave }: ProjectEditor
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
             <h3 className="text-lg font-semibold mb-4">
               Edit Projects for &quot;{transcript.title || transcript.agent_name}&quot;

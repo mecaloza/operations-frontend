@@ -50,7 +50,7 @@ export function AssignAgentsModal({ user, agents, onClose }: AssignAgentsModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70">
       <Card className="w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
         <CardHeader>
           <div className="flex items-center justify-between">

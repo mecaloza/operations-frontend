@@ -52,7 +52,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-screen border-r border-border bg-white flex flex-col transition-all duration-300",
+          "fixed left-0 top-0 z-50 h-screen border-r border-border bg-white dark:bg-gray-900 flex flex-col transition-all duration-300",
           // Mobile: off-screen by default, slide in when open
           mobileOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0",
@@ -61,7 +61,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           collapsed && "md:w-16"
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b border-border px-4">
+        <div className="flex h-14 items-center justify-between border-b border-border dark:border-gray-800 px-4">
           <Link
             href="/dashboard"
             className="flex items-center gap-2.5 overflow-hidden"
@@ -90,7 +90,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname?.startsWith(item.href + "/");
@@ -118,7 +118,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
         </nav>
 
         {/* Collapse toggle - desktop only */}
-        <div className="border-t border-border p-3 hidden md:block">
+        <div className="border-t border-border dark:border-gray-800 p-3 hidden md:block">
           <button
             onClick={onToggle}
             className="flex w-full items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"

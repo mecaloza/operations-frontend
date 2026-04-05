@@ -80,8 +80,8 @@ export function TaskDetailModal({ taskId, onClose, onEdit }: TaskDetailModalProp
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="w-full max-w-3xl rounded-lg bg-white shadow-xl p-8">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4">
+        <div className="w-full max-w-3xl rounded-lg bg-white dark:bg-gray-800 shadow-xl p-8">
           <p className="text-center text-muted-foreground">Cargando detalles...</p>
         </div>
       </div>
@@ -90,8 +90,8 @@ export function TaskDetailModal({ taskId, onClose, onEdit }: TaskDetailModalProp
 
   if (error || !task) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-        <div className="w-full max-w-3xl rounded-lg bg-white shadow-xl p-8">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4">
+        <div className="w-full max-w-3xl rounded-lg bg-white dark:bg-gray-800 shadow-xl p-8">
           <div className="flex items-center gap-2 text-red-600 mb-4">
             <AlertCircle className="h-5 w-5" />
             <p className="font-medium">Error</p>
@@ -108,8 +108,8 @@ export function TaskDetailModal({ taskId, onClose, onEdit }: TaskDetailModalProp
     : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
-      <div className="w-full max-w-3xl rounded-lg bg-white shadow-xl my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 p-4 overflow-y-auto">
+      <div className="w-full max-w-3xl rounded-lg bg-white dark:bg-gray-800 shadow-xl my-8">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">

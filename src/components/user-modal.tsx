@@ -49,7 +49,7 @@ export function UserModal({ user, teams, onClose }: UserModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center justify-between">
