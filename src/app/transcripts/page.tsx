@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { Transcript, Task, Epic } from "@/lib/types";
+import type { Transcript, Task, Epic, Project } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download, Search, Clock, MessageSquare } from "lucide-react";
 import { TranscriptViewer } from "@/components/transcript-viewer";
+import { ProjectEditor } from "@/components/project-editor";
+import { getContentPreview, getProjectBadgeClass } from "@/lib/transcript-utils";
 
 export default function TranscriptsPage() {
   const [transcripts, setTranscripts] = useState<Transcript[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [epics, setEpics] = useState<Epic[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTranscript, setSelectedTranscript] = useState<Transcript | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,23 +25,30 @@ export default function TranscriptsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [transcriptsData, tasksData, epicsData] = await Promise.all([
+      const [transcriptsData, tasksData, epicsData, projectsData] = await Promise.all([
         api.transcripts.list(filterTaskId || undefined, filterEpicId || undefined).catch(() => []),
         api.tasks.list().catch(() => []),
         api.epics.list().catch(() => []),
+        api.projects.list().catch(() => []),
       ]);
       setTranscripts(transcriptsData);
       setTasks(tasksData);
       setEpics(epicsData);
+      setProjects(projectsData);
     } catch (error) {
       console.error("Error loading data:", error);
       // Set empty arrays on error
       setTranscripts([]);
       setTasks([]);
       setEpics([]);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProjectUpdate = (transcriptId: string, updated: Transcript) => {
+    setTranscripts(transcripts.map((t) => (t.id === transcriptId ? updated : t)));
   };
 
   useEffect(() => {
@@ -163,6 +173,8 @@ export default function TranscriptsPage() {
         {filteredTranscripts.map((transcript) => {
           const taskName = getTaskName(transcript.task_id);
           const epicName = getEpicName(transcript.epic_id);
+          const preview = getContentPreview(transcript);
+          
           return (
             <Card key={transcript.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
@@ -171,6 +183,29 @@ export default function TranscriptsPage() {
                     <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
                       {transcript.title || transcript.agent_name}
                     </CardTitle>
+                    
+                    {/* Preview del contenido */}
+                    {preview && (
+                      <p className="text-sm text-gray-600 mt-1 mb-2 line-clamp-2">
+                        {preview}
+                      </p>
+                    )}
+                    
+                    {/* Project badges */}
+                    {transcript.project_names && transcript.project_names.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {transcript.project_names.map((name, idx) => (
+                          <span
+                            key={idx}
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getProjectBadgeClass(name)}`}
+                          >
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Task/Epic badges */}
                     <div className="flex items-center gap-2 mb-2">
                       {taskName && (
                         <Badge variant="outline" className="text-xs">
@@ -183,6 +218,7 @@ export default function TranscriptsPage() {
                         </Badge>
                       )}
                     </div>
+                    
                     {transcript.summary && (
                       <CardDescription>{transcript.summary}</CardDescription>
                     )}
@@ -208,22 +244,31 @@ export default function TranscriptsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="h-4 w-4" />
-                    {transcript.messages?.length 
-                      ? `${transcript.messages.length} messages` 
-                      : transcript.content 
-                        ? `${Math.ceil(transcript.content.length / 1000)}k chars` 
-                        : "Empty"}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="h-4 w-4" />
+                      {transcript.messages?.length 
+                        ? `${transcript.messages.length} messages` 
+                        : transcript.content 
+                          ? `${Math.ceil(transcript.content.length / 1000)}k chars` 
+                          : "Empty"}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {new Date(transcript.created_at).toLocaleString()}
+                    </div>
+                    {transcript.agent_name && (
+                      <span>🤖 {transcript.agent_name}</span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {new Date(transcript.created_at).toLocaleString()}
-                  </div>
-                  {transcript.agent_name && (
-                    <span>🤖 {transcript.agent_name}</span>
-                  )}
+                  
+                  {/* Project Editor */}
+                  <ProjectEditor
+                    transcript={transcript}
+                    allProjects={projects}
+                    onSave={(updated) => handleProjectUpdate(transcript.id, updated)}
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -169,6 +169,9 @@ export interface Transcript {
   agent_id: string;
   agent_name: string;
   messages?: TranscriptMessage[]; // ← Opcional (chat-style transcripts)
+  project_id?: number;
+  project_ids?: number[]; // ← NUEVO: múltiples proyectos
+  project_names?: string[]; // ← NUEVO: nombres de proyectos
   created_at: string;
   updated_at: string;
   summary?: string;
