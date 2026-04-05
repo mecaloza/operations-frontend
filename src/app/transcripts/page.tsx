@@ -79,6 +79,7 @@ export default function TranscriptsPage() {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
+      t.title?.toLowerCase().includes(query) ||
       t.agent_name.toLowerCase().includes(query) ||
       t.summary?.toLowerCase().includes(query) ||
       getTaskName(t.task_id)?.toLowerCase().includes(query) ||
@@ -167,10 +168,10 @@ export default function TranscriptsPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
+                    <CardTitle className="text-lg font-semibold mb-2 line-clamp-2">
+                      {transcript.title || transcript.agent_name}
+                    </CardTitle>
                     <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">
-                        {transcript.agent_name}
-                      </CardTitle>
                       {taskName && (
                         <Badge variant="outline" className="text-xs">
                           {taskName}
@@ -220,6 +221,12 @@ export default function TranscriptsPage() {
                     <Clock className="h-4 w-4" />
                     {new Date(transcript.created_at).toLocaleString()}
                   </div>
+                  {transcript.created_by && (
+                    <span>👤 {transcript.created_by}</span>
+                  )}
+                  {transcript.agent_name && (
+                    <span>🤖 {transcript.agent_name}</span>
+                  )}
                 </div>
               </CardContent>
             </Card>
