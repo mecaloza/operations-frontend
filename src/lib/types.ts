@@ -162,11 +162,13 @@ export interface TranscriptMessage {
 
 export interface Transcript {
   id: string;
+  title?: string;
+  content?: string; // ← Campo markdown completo (Plaud AI, etc.)
   task_id?: string;
   epic_id?: string;
   agent_id: string;
   agent_name: string;
-  messages?: TranscriptMessage[]; // Can be undefined
+  messages?: TranscriptMessage[]; // ← Opcional (chat-style transcripts)
   created_at: string;
   updated_at: string;
   summary?: string;

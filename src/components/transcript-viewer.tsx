@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, User, Bot, Settings } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface TranscriptViewerProps {
   transcript: Transcript;
@@ -57,7 +58,12 @@ export function TranscriptViewer({ transcript, onClose }: TranscriptViewerProps)
                 Transcript — {transcript.agent_name}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {new Date(transcript.created_at).toLocaleString()} • {transcript.messages?.length || 0} messages
+                {new Date(transcript.created_at).toLocaleString()} •{" "}
+                {transcript.messages?.length 
+                  ? `${transcript.messages.length} messages` 
+                  : transcript.content 
+                    ? `${Math.ceil(transcript.content.length / 1000)}k chars` 
+                    : "Empty"}
               </p>
             </div>
             <button
@@ -71,53 +77,66 @@ export function TranscriptViewer({ transcript, onClose }: TranscriptViewerProps)
         <CardContent className="flex-1 overflow-hidden p-0">
           <ScrollArea className="h-full">
             <div className="p-6 space-y-4">
-              {(transcript.messages || []).map((message, index) => (
-                <div
-                  key={message.id || index}
-                  className={`flex gap-3 ${
-                    message.role === "user" ? "flex-row-reverse" : ""
-                  }`}
-                >
+              {transcript.messages && transcript.messages.length > 0 ? (
+                // Vista de mensajes (chat-style)
+                transcript.messages.map((message, index) => (
                   <div
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      message.role === "user"
-                        ? "bg-blue-100 text-blue-800"
-                        : message.role === "assistant"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
+                    key={message.id || index}
+                    className={`flex gap-3 ${
+                      message.role === "user" ? "flex-row-reverse" : ""
                     }`}
                   >
-                    {getRoleIcon(message.role)}
-                  </div>
-                  <div
-                    className={`flex-1 max-w-[75%] ${
-                      message.role === "user" ? "items-end" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge className={`${getRoleBadgeColor(message.role)} text-xs`}>
-                        {message.role}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
                     <div
-                      className={`rounded-lg px-4 py-3 ${
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
                         message.role === "user"
-                          ? "bg-blue-50 border border-blue-200"
+                          ? "bg-blue-100 text-blue-800"
                           : message.role === "assistant"
-                          ? "bg-white border border-gray-200"
-                          : "bg-gray-50 border border-gray-200"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
+                      {getRoleIcon(message.role)}
+                    </div>
+                    <div
+                      className={`flex-1 max-w-[75%] ${
+                        message.role === "user" ? "items-end" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge className={`${getRoleBadgeColor(message.role)} text-xs`}>
+                          {message.role}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <div
+                        className={`rounded-lg px-4 py-3 ${
+                          message.role === "user"
+                            ? "bg-blue-50 border border-blue-200"
+                            : message.role === "assistant"
+                            ? "bg-white border border-gray-200"
+                            : "bg-gray-50 border border-gray-200"
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap break-words">
+                          {message.content}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : transcript.content ? (
+                // Vista de contenido markdown (Plaud AI, etc.)
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{transcript.content}</ReactMarkdown>
                 </div>
-              ))}
+              ) : (
+                // Vacío real
+                <p className="text-center text-muted-foreground italic py-8">
+                  No content available
+                </p>
+              )}
             </div>
           </ScrollArea>
         </CardContent>

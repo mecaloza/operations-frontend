@@ -210,7 +210,11 @@ export default function TranscriptsPage() {
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <MessageSquare className="h-4 w-4" />
-                    {transcript.messages?.length || 0} messages
+                    {transcript.messages?.length 
+                      ? `${transcript.messages.length} messages` 
+                      : transcript.content 
+                        ? `${Math.ceil(transcript.content.length / 1000)}k chars` 
+                        : "Empty"}
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
