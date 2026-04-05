@@ -221,9 +221,6 @@ export default function TranscriptsPage() {
                     <Clock className="h-4 w-4" />
                     {new Date(transcript.created_at).toLocaleString()}
                   </div>
-                  {transcript.created_by && (
-                    <span>👤 {transcript.created_by}</span>
-                  )}
                   {transcript.agent_name && (
                     <span>🤖 {transcript.agent_name}</span>
                   )}
